@@ -7,7 +7,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 class SIRENLayer(nn.Module):
     def __init__(self, in_features, out_features):
         super(SIRENLayer, self).__init__()
+        self.in_features = in_features
         self.lin = nn.Linear(in_features, out_features)
+        self.init_weights()
+
+    def init_weights(self):
+        self.lin.weight.uniform_(-1/self.in_features, 1/self.in_features)
 
     def forward(self, x):
         out = self.lin(x)
@@ -29,6 +34,9 @@ class SIREN(nn.Module):
         for layer_i in self.siren_layers:
             out = layer_i(out)
         return out
+
+
+
 
 
 # ======== Experiments ==========
@@ -111,7 +119,7 @@ if __name__ == '__main__':
     # load image
     img = Image.open("./image.jpeg")
     img_to_shape = (1024, 1024)
-    img = ToTensor()(Resize((1024, 1024))(img))
+    img = ToTensor()(Resize(img_to_shape)(img))
 
     show_image = False
     if show_image:
